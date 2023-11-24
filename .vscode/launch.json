@@ -8,7 +8,7 @@
             "name": "(gdb) Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/kruskals",
+            "program": "${workspaceFolder}/kruskals_opt",
             "args": [],
             "stopAtEntry": true,
             "cwd": "${fileDirname}",

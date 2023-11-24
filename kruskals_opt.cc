@@ -23,7 +23,11 @@ namespace fs = std::filesystem;
 using namespace std::chrono;
 
 
-
+struct node
+{
+    int vertex;
+    node *parent = nullptr;
+};
 
 vector<int> parseLine(string line)
 {
@@ -61,16 +65,38 @@ void sortGraph(vector<vector<int>> &graph)
 }
 
 
-int findSet(vector<set<int>> sets, int vertex)
+int find(vector<node> set, int vertex)
 {
-    for (size_t i = 0; i < sets.size(); i++)
-    {
-        if (sets[i].find(vertex) != sets[i].end())
+    for (size_t i = 0; i < set.size(); i++)
+    {   
+        if (set[i].vertex == vertex)
         {
             return i;
         }
+
+        node *cursor = set[i].parent;
+        while (cursor != nullptr)
+        {
+            if (cursor->vertex == vertex)
+            {
+                return i;
+            }
+            cursor = cursor->parent;
+        }
     }
     return -1;
+    
+}
+
+void unite(vector<node> &set, int u, int v)
+{
+    int indexU = find(set, u);
+    int indexV = find(set, v);
+    if (indexU != indexV)
+    {
+        set[indexU].parent = &set[indexV];
+    }
+    set.erase(set.begin() + indexV);
 }
 
 void printMST(vector<vector<int>> mst, int vertices, string filename)
@@ -93,13 +119,13 @@ vector<vector<int>> kruskalsAlgorithm(vector<vector<int>> graph, int vertices)
 {
     sortGraph(graph);
     vector<vector<int>> result;
-    vector<set<int>> sets;
+    vector<node> set;
     int u,v, weight, indexU, indexV;
     for (int i = 0; i < vertices; i++)
     {
-        set<int> temp;
-        temp.insert(i + 1);
-        sets.push_back(temp);
+        node temp;
+        temp.vertex = i + 1;
+        set.push_back(temp);
     }
 
     for (size_t i = 0; i < graph.size(); i++)
@@ -107,14 +133,13 @@ vector<vector<int>> kruskalsAlgorithm(vector<vector<int>> graph, int vertices)
         u = graph[i][0];
         v = graph[i][1];
         weight = graph[i][2];
-        indexU = findSet(sets, u);
-        indexV = findSet(sets, v);
+        indexU = find(set, u);
+        indexV = find(set, v);
         if (indexU != indexV)
         {
             result.push_back({u, v, weight});
-            sets[indexU].insert(sets[indexV].begin(), sets[indexV].end());
-            sets.erase(sets.begin() + indexV);
-            if(sets.size() == 1){
+            unite(set, u, v);
+            if(set.size() == 1){
                 break;
             }
         }
@@ -129,11 +154,12 @@ int main()
 {
     string filename;
     ifstream input;
-    ofstream output("kruskals_output.csv", ios::out);
+    ofstream output("kruskals_opt_output.csv", ios::out);
     string path = "./graphs";
     string line;
     vector<int> temp;
     vector<vector<int>> result;
+    output << "Kruskal's Algorithm Optimized" << endl;
     output << "Experiment,Durations (microseconds)" << endl; 
     for (const auto &entry : fs::directory_iterator(path))
     {
