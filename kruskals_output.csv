@@ -1,0 +1,7 @@
+Experiment,Durations (microseconds)
+graph_v100_e150,27206
+graph_v200_e300,58603
+graph_v400_e1200,301784
+graph_v1600_e6400,5274020
+graph1,618
+graph_v800_e3200,2081395
