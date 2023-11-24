@@ -36,7 +36,7 @@ int minKey(vector<int> key, vector<bool> mstSet, int vertices)
 }
 
 void printMST(vector<vector<int>> mst, int vertices, string filename)
-{   
+{
     filename = filename.substr(filename.find_last_of("/"));
     filename = filename.substr(0, filename.rfind("."));
     ofstream output("output/" + filename + "_out_prims.csv", ios::out);
@@ -48,9 +48,9 @@ void printMST(vector<vector<int>> mst, int vertices, string filename)
         output << mst[i][0] << "," << mst[i][1] << "," << mst[i][2] << endl;
     }
 }
-
+//O(ElogV)
 vector<vector<int>> primsAlgorithm(vector<vector<int>> graph, int vertices)
-{   
+{
     vector<vector<int>> result;
     // Array to store constructed MST
     vector<int> parent(vertices);
@@ -67,7 +67,7 @@ vector<vector<int>> primsAlgorithm(vector<vector<int>> graph, int vertices)
     parent[0] = -1;
 
     // The MST will have V vertices
-    for (int count = 0; count < vertices - 1; count++)
+    for (int count = 0; count < vertices - 1; count++) // O(v^2)
     {
 
         int u = minKey(key, mstSet, vertices);
@@ -75,21 +75,20 @@ vector<vector<int>> primsAlgorithm(vector<vector<int>> graph, int vertices)
         // Add the picked vertex to the MST Set
         mstSet[u] = true;
 
-        for (int v = 0; v < vertices; v++)
+        for (int v = 0; v < vertices; v++) // O(v)
 
             if (graph[u][v] && mstSet[v] == false && graph[u][v] < key[v])
                 parent[v] = u, key[v] = graph[u][v];
     }
 
-    for (int i = 1; i < vertices; i++){
+    for (int i = 1; i < vertices; i++) //O(v)
+    {
         result.push_back({parent[i] + 1, i + 1, graph[i][parent[i]]});
     }
     return result;
-
 }
 
-    // Print the constructed MST
-
+// Print the constructed MST
 
 vector<int> parseLine(string line)
 {
@@ -134,7 +133,7 @@ int main(int argc, char const *argv[])
     ofstream output("prims_output.csv", ios::out);
     output << "Experiment,Duration(microseconds)" << endl;
     for (const auto &entry : fs::directory_iterator(path))
-    {   
+    {
         cout << entry.path() << endl;
         filename = entry.path();
         input.open(filename);
@@ -165,7 +164,6 @@ int main(int argc, char const *argv[])
         // printMatrx(graph);
         string experimentName = filename.substr(filename.find_last_of("/") + 1);
         experimentName = experimentName.substr(0, experimentName.rfind("."));
-
 
         auto start = high_resolution_clock::now();
         result = primsAlgorithm(graph, numVerts);

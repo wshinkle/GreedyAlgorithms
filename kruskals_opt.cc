@@ -41,7 +41,7 @@ vector<int> parseLine(string line)
     return result;
 }
 
-void sortGraph(vector<vector<int>> &graph)
+void sortGraph(vector<vector<int>> &graph) //O(n^2)
 {
     int temp;
     for (size_t i = 0; i < graph.size(); i++)
@@ -77,7 +77,7 @@ class dataStructure
     int *parent;
 
 public:
-    dataStructure(int n)
+    dataStructure(int n) //O(n)
     {
         parent = new int[n];
 
@@ -123,23 +123,23 @@ public:
 
         edgelist.push_back(edge);
     }
-
+    //O(ElogV)
     vector<vector<int>> kruskals_mst()
     {
 
         vector<vector<int>> result;
 
         // Sort all edges
-        sortGraph(edgelist);
+        sortGraph(edgelist); //O(e^2)
 
-        // Initialize the DSU
-        dataStructure s(V);
+        dataStructure s(V); //O(v)
 
-        for (auto edge : edgelist)
+        for (auto edge : edgelist) //O(e)
         {
             int x = edge[0];
             int y = edge[1];
 
+            //Find + Union = O(VlogV)
             if (s.find(x) != s.find(y))
             {
                 s.unite(x, y);

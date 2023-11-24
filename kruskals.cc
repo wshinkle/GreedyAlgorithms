@@ -88,7 +88,7 @@ void printMST(vector<vector<int>> mst, int vertices, string filename)
 }
 
 
-
+//O(EloV)
 vector<vector<int>> kruskalsAlgorithm(vector<vector<int>> graph, int vertices)
 {
     sortGraph(graph);
