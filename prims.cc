@@ -52,27 +52,22 @@ void printMST(vector<vector<int>> mst, int vertices, string filename)
 vector<vector<int>> primsAlgorithm(vector<vector<int>> graph, int vertices)
 {
     vector<vector<int>> result;
-    // Array to store constructed MST
+
     vector<int> parent(vertices);
 
-    // Key values used to pick minimum weight edge in cut
     vector<int> key(vertices, INT_MAX);
 
-    // To represent set of vertices included in MST
     vector<bool> mstSet(vertices, false);
 
     key[0] = 0;
 
-    // First node is always root of MST
     parent[0] = -1;
 
-    // The MST will have V vertices
     for (int count = 0; count < vertices - 1; count++) // O(v^2)
     {
 
         int u = minKey(key, mstSet, vertices);
 
-        // Add the picked vertex to the MST Set
         mstSet[u] = true;
 
         for (int v = 0; v < vertices; v++) // O(v)
@@ -88,7 +83,6 @@ vector<vector<int>> primsAlgorithm(vector<vector<int>> graph, int vertices)
     return result;
 }
 
-// Print the constructed MST
 
 vector<int> parseLine(string line)
 {
