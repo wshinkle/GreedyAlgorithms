@@ -1,5 +1,5 @@
 /**
- * @file kruskals.cc
+ * @file kruskals_opt.cc
  * @author your name (you@domain.com)
  * @brief
  * @version 0.1
@@ -16,18 +16,10 @@
 #include <climits>
 #include <filesystem>
 #include <chrono>
-#include <set>
 
 using namespace std;
 namespace fs = std::filesystem;
 using namespace std::chrono;
-
-
-struct node
-{
-    int vertex;
-    node *parent = nullptr;
-};
 
 vector<int> parseLine(string line)
 {
@@ -44,6 +36,8 @@ vector<int> parseLine(string line)
     }
     temp = line.substr(0);
     result.push_back(stoi(temp));
+    result[0] = result[0] - 1;
+    result[1] = result[1] - 1;
     return result;
 }
 
@@ -64,91 +58,97 @@ void sortGraph(vector<vector<int>> &graph)
     }
 }
 
-
-int find(vector<node> set, int vertex)
-{
-    for (size_t i = 0; i < set.size(); i++)
-    {   
-        if (set[i].vertex == vertex)
-        {
-            return i;
-        }
-
-        node *cursor = set[i].parent;
-        while (cursor != nullptr)
-        {
-            if (cursor->vertex == vertex)
-            {
-                return i;
-            }
-            cursor = cursor->parent;
-        }
-    }
-    return -1;
-    
-}
-
-void unite(vector<node> &set, int u, int v)
-{
-    int indexU = find(set, u);
-    int indexV = find(set, v);
-    if (indexU != indexV)
-    {
-        set[indexU].parent = &set[indexV];
-    }
-    set.erase(set.begin() + indexV);
-}
-
 void printMST(vector<vector<int>> mst, int vertices, string filename)
-{   
+{
     filename = filename.substr(filename.find_last_of("/"));
     filename = filename.substr(0, filename.rfind("."));
-    ofstream output("output/" + filename + "_out_kruskals.csv", ios::out);
+    ofstream output("output/" + filename + "_out_kruskals_opt.csv", ios::out);
     cout << "Vertex1,Vertex2,Weight\n";
     output << "Vertex1,Vertex2,Weight\n";
     for (size_t i = 0; i < mst.size(); i++)
     {
-        cout << mst[i][0] << "," << mst[i][1] << "," << mst[i][2] << endl;
-        output << mst[i][0] << "," << mst[i][1] << "," << mst[i][2] << endl;
+        cout << mst[i][0] + 1 << "," << mst[i][1] + 1 << "," << mst[i][2] << endl;
+        output << mst[i][0] + 1 << "," << mst[i][1] + 1 << "," << mst[i][2] << endl;
     }
 }
 
-
-
-vector<vector<int>> kruskalsAlgorithm(vector<vector<int>> graph, int vertices)
+class dataStructure
 {
-    sortGraph(graph);
-    vector<vector<int>> result;
-    vector<node> set;
-    int u,v, weight, indexU, indexV;
-    for (int i = 0; i < vertices; i++)
-    {
-        node temp;
-        temp.vertex = i + 1;
-        set.push_back(temp);
-    }
+    int *parent;
 
-    for (size_t i = 0; i < graph.size(); i++)
+public:
+    dataStructure(int n)
     {
-        u = graph[i][0];
-        v = graph[i][1];
-        weight = graph[i][2];
-        indexU = find(set, u);
-        indexV = find(set, v);
-        if (indexU != indexV)
+        parent = new int[n];
+
+        for (int i = 0; i < n; i++)
         {
-            result.push_back({u, v, weight});
-            unite(set, u, v);
-            if(set.size() == 1){
-                break;
-            }
+            parent[i] = i;
         }
     }
-    return result;
 
-}
+    // Find function
+    int find(int i)
+    {
+        if (parent[i] != i)
+            parent[i] = find(parent[i]);
 
+        return parent[i];
+    }
 
+    // Union function
+    void unite(int x, int y)
+    {
+        int s1 = find(x);
+        int s2 = find(y);
+
+        if (s1 != s2)
+        {
+            parent[s1] = s2;
+        }
+    }
+};
+
+class Graph
+{
+    vector<vector<int>> edgelist;
+    int V;
+
+public:
+    Graph(int V) { this->V = V; }
+
+    // Function to add edge in a graph
+    void add(vector<int> edge)
+    {
+
+        edgelist.push_back(edge);
+    }
+
+    vector<vector<int>> kruskals_mst()
+    {
+
+        vector<vector<int>> result;
+
+        // Sort all edges
+        sortGraph(edgelist);
+
+        // Initialize the DSU
+        dataStructure s(V);
+
+        for (auto edge : edgelist)
+        {
+            int x = edge[0];
+            int y = edge[1];
+
+            if (s.find(x) != s.find(y))
+            {
+                s.unite(x, y);
+                result.push_back(edge);
+            }
+        }
+        return result;
+    }
+};
 
 int main()
 {
@@ -160,7 +160,7 @@ int main()
     vector<int> temp;
     vector<vector<int>> result;
     output << "Kruskal's Algorithm Optimized" << endl;
-    output << "Experiment,Durations (microseconds)" << endl; 
+    output << "Experiment,Durations (microseconds)" << endl;
     for (const auto &entry : fs::directory_iterator(path))
     {
         filename = entry.path();
@@ -172,7 +172,7 @@ int main()
         }
         getline(input, line);
         int vertices = stoi(line);
-        vector<vector<int>> graph;
+        Graph graph(vertices);
         while (input)
         {
 
@@ -180,20 +180,18 @@ int main()
             if (line == "")
             {
                 continue;
-                
             }
             temp = parseLine(line);
-            graph.push_back(temp);
+            graph.add(temp);
         }
         input.close();
 
         string experimentName = filename.substr(filename.find_last_of("/") + 1);
         experimentName = experimentName.substr(0, experimentName.rfind("."));
 
-
         cout << "Running Kruskal's Algorithm on " << filename << endl;
         auto start = high_resolution_clock::now();
-        result = kruskalsAlgorithm(graph, vertices);
+        result = graph.kruskals_mst();
         auto stop = high_resolution_clock::now();
         auto duration = duration_cast<microseconds>(stop - start);
         output << experimentName << "," << duration.count() << endl;

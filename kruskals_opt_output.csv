@@ -1,2 +1,8 @@
 Kruskal's Algorithm Optimized
 Experiment,Durations (microseconds)
+graph_v100_e150,748
+graph_v200_e300,2387
+graph_v400_e1200,21143
+graph_v1600_e6400,639920
+graph1,239
+graph_v800_e3200,139416

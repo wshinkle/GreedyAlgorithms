@@ -1,7 +1,7 @@
 Experiment,Duration(microseconds)
-graph_v100_e150,1482
-graph_v200_e300,5572
-graph_v400_e1200,16909
-graph_v1600_e6400,220042
-graph1,210
-graph_v800_e3200,61684
+graph_v100_e150,1426
+graph_v200_e300,2970
+graph_v400_e1200,11178
+graph_v1600_e6400,158059
+graph1,128
+graph_v800_e3200,43844
